@@ -9,4 +9,4 @@ path_to_mods = './path/to/steam'
 async def main():
     await update_mods(app_id, path_to_mods, steamcmd_path, path_to_wokshop_acf)
 
-asyncio.run(main())
+asyncio.get_event_loop().run_until_complete(main())
