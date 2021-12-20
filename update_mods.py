@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 import re
 from datetime import datetime
 from acf import loads as load_acf
-from steamcmd import Steamcmd
 import os
 
 from client import Client
@@ -43,15 +42,19 @@ async def info_wrapper(mod_id, list_to_update, client, workshop_local_items):
     mod_info = await load_mod_info(client, mod_id)
     #print(mod_info)
     local_mod_info = workshop_local_items['AppWorkshop']['WorkshopItemsInstalled'][mod_id]
-    local_installed_at_timestamp = datetime.fromtimestamp(int(local_mod_info['timeupdated']))
-    print('Local installed updated at: ', local_installed_at_timestamp)
-    if mod_info["last_update"] > local_installed_at_timestamp:
+    local_installed_at = datetime.fromtimestamp(int(local_mod_info['timeupdated']))
+    print('Local installed updated at: ', local_installed_at)
+    if mod_info["last_update"] > local_installed_at:
         print('NEED UPDATE ', mod_info['name'])
-        list_to_update.append(mod_id)
+        list_to_update.append({
+            **mod_info,
+            "local_last_update": local_installed_at,
+            "local_last_update_timestamp": local_installed_at.timestamp(),
+        })
     else:
         print('up to date, ok')
 
-async def update_mods(app_id, path_to_mods, steamcmd_path, path_to_wokshop_acf):
+async def update_mods(path_to_wokshop_acf):
     acf = open(path_to_wokshop_acf, 'r', encoding="utf-8")
 
     workshop_local_items = load_acf(acf.read())
@@ -73,9 +76,8 @@ async def update_mods(app_id, path_to_mods, steamcmd_path, path_to_wokshop_acf):
 
     print('Total mods to update: ', len(mods_to_update))
     if mods_to_update:
-        steamcmd = Steamcmd(steamcmd_path)
-        for mod_id in mods_to_update:
-            steamcmd.install_workshopfiles(app_id, mod_id, path_to_mods)
+        for mod in mods_to_update:
+            print('Needs to update', mod)
 
     await client.session.close()
 
