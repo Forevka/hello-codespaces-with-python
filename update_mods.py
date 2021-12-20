@@ -7,6 +7,7 @@ from acf import loads as load_acf
 import os
 
 from client import Client
+from logger_config import api_logger
 
 
 
@@ -20,7 +21,7 @@ async def load_mod_info(client, mod_id,):
     human_datetime = re.sub(r'\r', '',  human_datetime).replace('Update: ', '').replace('@', '').replace('  ', ' ')
 
     mod_name = soup.find('div', class_='workshopItemTitle')
-    print('Mod name: ', mod_name.text)
+    api_logger.info(f'Mod name: {mod_name.text}', )
     #print('Steam latest update datetime: ', human_datetime)
 
     with_year = human_datetime.find(',') > 0
@@ -30,7 +31,7 @@ async def load_mod_info(client, mod_id,):
         change_datetime = datetime.strptime(human_datetime, '%d %b %I:%M%p')
         change_datetime = datetime(datetime.now().year, change_datetime.month, change_datetime.day, change_datetime.hour, change_datetime.minute)
 
-    print('Last updated at: ', change_datetime)
+    api_logger.info(f'Last updated at: {change_datetime}', )
 
     return {
         "name": mod_name.text,
@@ -43,22 +44,24 @@ async def info_wrapper(mod_id, list_to_update, client, workshop_local_items):
     #print(mod_info)
     local_mod_info = workshop_local_items['AppWorkshop']['WorkshopItemsInstalled'][mod_id]
     local_installed_at = datetime.fromtimestamp(int(local_mod_info['timeupdated']))
-    print('Local installed updated at: ', local_installed_at)
+    api_logger.info(f'Local installed updated at: {local_installed_at}', )
     if mod_info["last_update"] > local_installed_at:
-        print('NEED UPDATE ', mod_info['name'])
+        api_logger.info(f'NEED UPDATE {mod_info["name"]}', )
         list_to_update.append({
             **mod_info,
             "local_last_update": local_installed_at,
             "local_last_update_timestamp": local_installed_at.timestamp(),
         })
     else:
-        print('up to date, ok')
+        api_logger.info('up to date, ok')
 
 async def check_mods_to_update(path_to_wokshop_acf):
     acf = open(path_to_wokshop_acf, 'r', encoding="utf-8")
 
     workshop_local_items = load_acf(acf.read())
 
+    acf.close()
+    
     local_mods = list(workshop_local_items['AppWorkshop']['WorkshopItemsInstalled'].keys())
 
     urls = {
@@ -74,7 +77,7 @@ async def check_mods_to_update(path_to_wokshop_acf):
 
     await asyncio.gather(*tasks)
 
-    print('Total mods to update: ', len(mods_to_update))
+    api_logger.info(f'Total mods to update: {len(mods_to_update)}', )
 
     await client.session.close()
     return mods_to_update
