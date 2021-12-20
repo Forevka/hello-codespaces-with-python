@@ -1,5 +1,6 @@
 from enum import Enum
 import datetime
+from config import wait_before_restart, cooldown_after_restart
 
 class States(Enum):
     RESTARTING = "restarting"
@@ -13,10 +14,10 @@ class State:
 
     state = {
         States.RESTARTING: False,
-        States.RESTART_IN_PERIOD: datetime.timedelta(minutes=2),
+        States.RESTART_IN_PERIOD: datetime.timedelta(minutes=wait_before_restart),
         States.RESTART_STARTED_AT: datetime.datetime.now(),
         States.RESTART_IN_COOLDOWN: False,
-        States.RESTART_COOLDOWN: datetime.timedelta(minutes=10),
+        States.RESTART_COOLDOWN: datetime.timedelta(minutes=cooldown_after_restart),
     }
 
 state = State.state
