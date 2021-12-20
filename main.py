@@ -55,7 +55,7 @@ def start_zomboid():
 
 
 @app.on_event("startup")
-@repeat_every(seconds=40, wait_first=True)
+@repeat_every(seconds=20, wait_first=True)
 async def remove_expired_tokens_task() -> None:
     global zomboid_process, zomboid_thread
     api_logger.info(f"BEFORE {state}")
