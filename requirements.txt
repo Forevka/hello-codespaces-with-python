@@ -2,3 +2,7 @@ aiohttp
 idna
 lxml
 beautifulsoup4
+fastapi
+fastapi_utils
+uvicorn
+rcon
