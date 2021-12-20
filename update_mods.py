@@ -54,7 +54,7 @@ async def info_wrapper(mod_id, list_to_update, client, workshop_local_items):
     else:
         print('up to date, ok')
 
-async def update_mods(path_to_wokshop_acf):
+async def check_mods_to_update(path_to_wokshop_acf):
     acf = open(path_to_wokshop_acf, 'r', encoding="utf-8")
 
     workshop_local_items = load_acf(acf.read())
@@ -75,9 +75,6 @@ async def update_mods(path_to_wokshop_acf):
     await asyncio.gather(*tasks)
 
     print('Total mods to update: ', len(mods_to_update))
-    if mods_to_update:
-        for mod in mods_to_update:
-            print('Needs to update', mod)
 
     await client.session.close()
-
+    return mods_to_update

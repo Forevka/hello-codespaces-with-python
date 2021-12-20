@@ -17,6 +17,17 @@
             "request": "launch",
             "program": "${workspaceRoot}/main.py",
             "console": "integratedTerminal"
-        }
+        },
+        {
+            "name": "Python: API",
+            "type": "python",
+            "module": "uvicorn",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "args": [
+                "main:app",
+                "--reload"
+            ],
+        },
     ]
 }
