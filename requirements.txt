@@ -7,3 +7,4 @@ fastapi_utils
 uvicorn
 rcon
 humanize
+discord
