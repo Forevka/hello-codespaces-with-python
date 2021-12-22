@@ -100,14 +100,19 @@ async def remove_expired_tokens_task() -> None:
                         f'"[Mod update] Server restart in {humanize.naturaldelta(restart_in_rounded_minutes)}"',
                     )
 
-                    discord_notification = discord_notification_points.get(restart_in_rounded_minutes.total_seconds() / 60, None)
-                    if discord_notification:
-                        channel = ds_client.get_channel(discord_channel_for_notifiers)
-                        await channel.send(discord_notification)
+                    notification_breakpoint = restart_in_rounded_minutes.total_seconds() / 60
+                    if notification_breakpoint not in state[States.RESTART_DISCORD_NOTIFICATIONS]:
+                        discord_notification = discord_notification_points.get(notification_breakpoint, None)
+                        if discord_notification:
+                            channel = ds_client.get_channel(discord_channel_for_notifiers)
+                            await channel.send(discord_notification)
+
+                        state[States.RESTART_DISCORD_NOTIFICATIONS].append(restart_in_rounded_minutes.total_seconds() / 60)
 
                     if (datetime.datetime.now() >= state[States.RESTART_STARTED_AT] + state[States.RESTART_IN_PERIOD]):
                         state[States.RESTART_IN_COOLDOWN] = True
                         state[States.RESTARTING] = False
+                        state[States.RESTART_DISCORD_NOTIFICATIONS] = []
 
                         client.run("quit")
                         

@@ -1,3 +1,5 @@
+import os
+
 path_to_server_bat_file = "E:\SteamLibrary\steamapps\common\ProjectZomboid\ProjectZomboidServer.bat"
 
 path_to_wokshop_acf = "./appworkshop_108600.acf"
@@ -11,6 +13,8 @@ cooldown_after_restart = 10  # minutes
 log_file_max_size = 24 # megabytes
 
 path_to_logs = "./logs/"
+if not os.path.exists(path_to_logs):
+    os.makedirs(path_to_logs)
 
 zomboid_logs_filename = "zomboid_logger.log"
 api_logs_filename = "api_logger.log"

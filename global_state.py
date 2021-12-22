@@ -8,6 +8,7 @@ class States(Enum):
     RESTART_STARTED_AT = "restart_started_at"
     RESTART_COOLDOWN = "restart_cooldown"
     RESTART_IN_COOLDOWN = "restart_in_cooldown"
+    RESTART_DISCORD_NOTIFICATIONS = "restart_discord_notifications"
 
 class State:
     instance: 'State' = None
@@ -18,6 +19,7 @@ class State:
         States.RESTART_STARTED_AT: datetime.datetime.now(),
         States.RESTART_IN_COOLDOWN: False,
         States.RESTART_COOLDOWN: datetime.timedelta(minutes=cooldown_after_restart),
+        States.RESTART_DISCORD_NOTIFICATIONS: [],
     }
-
+    
 state = State.state
