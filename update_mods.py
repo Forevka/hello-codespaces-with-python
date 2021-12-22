@@ -1,3 +1,4 @@
+from typing import Dict, List
 import aiohttp
 import asyncio
 from bs4 import BeautifulSoup
@@ -7,10 +8,11 @@ from acf import loads as load_acf
 
 from client import Client
 from logger_config import api_logger
+from config import steam_mod_changelog_url
 
 
 async def load_mod_info(
-    client,
+    client: Client,
     mod_id,
 ):
     raw_changelog = await client.get_changelog(mod_id)
@@ -45,9 +47,7 @@ async def load_mod_info(
             change_datetime.minute,
         )
 
-    api_logger.info(
-        f"Last updated at: {change_datetime}",
-    )
+    api_logger.info(f"Last updated at: {change_datetime}",)
 
     return {
         "name": mod_name.text,
@@ -75,13 +75,14 @@ async def info_wrapper(mod_id, list_to_update, client, workshop_local_items):
                 **mod_info,
                 "local_last_update": local_installed_at,
                 "local_last_update_timestamp": local_installed_at.timestamp(),
+                "mod_id": mod_id,
             }
         )
     else:
         api_logger.info("up to date, ok")
 
 
-async def check_mods_to_update(path_to_wokshop_acf):
+async def check_mods_to_update(path_to_wokshop_acf) -> List[Dict[str, any]]:
     acf = open(path_to_wokshop_acf, "r", encoding="utf-8")
 
     workshop_local_items = load_acf(acf.read())
@@ -93,11 +94,10 @@ async def check_mods_to_update(path_to_wokshop_acf):
     )
 
     urls = {
-        "changelog": "https://steamcommunity.com/sharedfiles/filedetails/changelog/{}"
+        "changelog": steam_mod_changelog_url,
     }
 
-    session = aiohttp.ClientSession()
-    client = Client(session, urls)
+    client = Client(urls)
 
     mods_to_update = []
 
@@ -108,9 +108,6 @@ async def check_mods_to_update(path_to_wokshop_acf):
 
     await asyncio.gather(*tasks)
 
-    api_logger.info(
-        f"Total mods to update: {len(mods_to_update)}",
-    )
+    api_logger.info(f"Total mods to update: {len(mods_to_update)}",)
 
-    await client.session.close()
     return mods_to_update
