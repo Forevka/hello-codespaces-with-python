@@ -14,3 +14,15 @@ path_to_logs = "./logs/"
 
 zomboid_logs_filename = "zomboid_logger.log"
 api_logs_filename = "api_logger.log"
+discord_logs_filename = "discord_logger.log"
+
+discord_channel_for_notifiers = 923165182581174284
+discord_bot_token = ""
+discord_notification_points = {
+    3: "*Внимание!*\nСервер перезапустится через 3 минуты",
+    1: "*Внимание!*\nСервер перезапустится через 1 минуту",
+}
+discord_bot_admins = [464801064781348864, 280349685510832129]
+
+## don't change pls
+steam_mod_changelog_url = "https://steamcommunity.com/sharedfiles/filedetails/changelog/{}"
