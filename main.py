@@ -87,7 +87,7 @@ async def remove_expired_tokens_task() -> None:
                 channel = ds_client.get_channel(discord_channel_for_notifiers)
                 message = '\n'.join([f"[{i['name']}]({steam_mod_changelog_url.format(i['mod_id'])})" for i in mods_to_update])
                 e = discord.Embed(title=f'Всего {len(mods_to_update)}', description=message)
-                await channel.send(f"Есть моды которые нужно обновить. Сервер перезапустится через {wait_before_restart} минут.\nПросим всех перезайти в игру чтобы обновиться.", embed=e)
+                await channel.send(f"Есть моды которые нужно обновить, @everyone. Сервер перезапустится через {wait_before_restart} минут.\nПросим всех перезайти в игру чтобы обновиться.", embed=e)
 
         if state[States.RESTARTING]:
             with Client(rcon_host, rcon_port, passwd=rcon_password) as client:

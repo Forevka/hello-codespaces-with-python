@@ -41,4 +41,4 @@ class AfterBattleClient(discord.Client):
 !check_updates - bot will send how many mods need to update
             """)
 
-ds_client = AfterBattleClient()
+ds_client = AfterBattleClient(allowed_mentions = discord.AllowedMentions(everyone = True))
