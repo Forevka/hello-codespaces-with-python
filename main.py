@@ -25,6 +25,7 @@ from config import (
     steam_mod_changelog_url,
     wait_before_restart,
     discord_notification_points,
+    planned_restart_every_seconds,
 )
 from utils import log_subprocess_output
 
@@ -54,6 +55,20 @@ app = FastAPI()
 def read_root():
     return {"Hello": "World"}
 
+@app.on_event("startup")
+@repeat_every(seconds=3, wait_first=True)
+async def is_zomboid_server_running() -> None:
+    if state[States.SERVER_WAITING_TO_START]:
+        try:
+            with Client(rcon_host, rcon_port, passwd=rcon_password, timeout=2) as client:
+                client.run("help")
+                state[States.SERVER_WAITING_TO_START] = False
+
+                channel = ds_client.get_channel(discord_channel_for_notifiers)
+                await channel.send("Сервер перезапущен, можно играть.")
+        except TimeoutError as e:
+            pass            
+
 
 @app.on_event("startup")
 async def start_zomboid():
@@ -63,10 +78,22 @@ async def start_zomboid():
 
     asyncio.create_task(ds_client.start(discord_bot_token))
 
+@app.on_event("startup")
+@repeat_every(seconds=planned_restart_every_seconds, wait_first=True)
+async def planned_restart_every_n_seconds() -> None:
+    state[States.RESTART_PLANNED] = True
+    state[States.RESTARTING] = True
+    state[States.RESTART_STARTED_AT] = datetime.datetime.now()
+
+    channel = ds_client.get_channel(discord_channel_for_notifiers)
+    await channel.send(f"*Внимание* плановый рестарт сервера, @everyone. Сервер перезапустится через {wait_before_restart}",)
+    
+    api_logger.info(f"starting planned restart")
+
 
 @app.on_event("startup")
 @repeat_every(seconds=20, wait_first=True)
-async def remove_expired_tokens_task() -> None:
+async def check_mod_updates_and_restart() -> None:
     global zomboid_process, zomboid_thread
     api_logger.info(f"BEFORE {state}")
     try:
@@ -95,9 +122,14 @@ async def remove_expired_tokens_task() -> None:
                     restart_in: datetime.timedelta = -(datetime.datetime.now() - state[States.RESTART_STARTED_AT]) + (state[States.RESTART_IN_PERIOD])
                     api_logger.info(f"Restarts in: {restart_in}")
                     restart_in_rounded_minutes = datetime.timedelta(minutes = round(restart_in.total_seconds() / 60))
+
+                    is_mod_update = state[States.RESTART_PLANNED] == False
+
+                    server_notification_msg = f'"[Mod update] Server restart in {humanize.naturaldelta(restart_in_rounded_minutes)}"' if is_mod_update else f'"[Planned restart] Server restart in {humanize.naturaldelta(restart_in_rounded_minutes)}"'
+
                     response = client.run(
                         "servermsg",
-                        f'"[Mod update] Server restart in {humanize.naturaldelta(restart_in_rounded_minutes)}"',
+                        server_notification_msg,
                     )
 
                     notification_breakpoint = restart_in_rounded_minutes.total_seconds() / 60
@@ -113,6 +145,7 @@ async def remove_expired_tokens_task() -> None:
                         state[States.RESTART_IN_COOLDOWN] = True
                         state[States.RESTARTING] = False
                         state[States.RESTART_DISCORD_NOTIFICATIONS] = []
+                        state[States.RESTART_PLANNED] = False
 
                         client.run("quit")
                         
@@ -123,9 +156,8 @@ async def remove_expired_tokens_task() -> None:
                             target=start_zomboid_server_wait_end
                         )
                         zomboid_thread.start()
-                        channel = ds_client.get_channel(discord_channel_for_notifiers)
-                        await channel.send("Сервер перезапущен, можно играть.")
 
+                        state[States.SERVER_WAITING_TO_START] = True
                 except Exception as e:
                     api_logger.error(e)
 
