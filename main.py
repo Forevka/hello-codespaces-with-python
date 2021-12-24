@@ -95,6 +95,11 @@ async def planned_restart_every_n_seconds() -> None:
 @repeat_every(seconds=20, wait_first=True)
 async def check_mod_updates_and_restart() -> None:
     global zomboid_process, zomboid_thread
+    if state[States.SERVER_WAITING_TO_START]:
+        api_logger.info(f"Waiting server to start, skipping mod check")
+
+        return
+
     api_logger.info(f"BEFORE {state}")
     try:
         if state[States.RESTART_IN_COOLDOWN]:
