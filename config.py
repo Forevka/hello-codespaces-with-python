@@ -1,4 +1,5 @@
 import os
+import datetime
 
 path_to_server_bat_file = "E:\SteamLibrary\steamapps\common\ProjectZomboid\ProjectZomboidServer.bat"
 
@@ -28,7 +29,16 @@ discord_notification_points = {
 }
 discord_bot_admins = [464801064781348864, 280349685510832129]
 
-planned_restart_every_seconds = 60 * 60 * 4 # 4 hours
+planned_restart_every_seconds = 5 # check that we need restart every 5 second
+planned_restart_at = [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+]
 
 ## don't change pls
-steam_mod_changelog_url = "https://steamcommunity.com/sharedfiles/filedetails/changelog/{}"steam_mod_changelog_url = "https://steamcommunity.com/sharedfiles/filedetails/changelog/{}"
+steam_mod_changelog_url = "https://steamcommunity.com/sharedfiles/filedetails/changelog/{}"
+
