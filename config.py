@@ -21,7 +21,7 @@ api_logs_filename = "api_logger.log"
 discord_logs_filename = "discord_logger.log"
 
 discord_channel_for_notifiers = 923165182581174284
-discord_bot_token = ""
+discord_bot_token = "OTIzMTM3MjQ5NDM1MDY2Mzc5.YcLojw.xQKqwewgC9EVSM0w6Kavw1oONNQ"
 discord_notification_points = {
     3: "*Внимание!*\nСервер перезапустится через 3 минуты",
     1: "*Внимание!*\nСервер перезапустится через 1 минуту",
@@ -31,4 +31,4 @@ discord_bot_admins = [464801064781348864, 280349685510832129]
 planned_restart_every_seconds = 60 * 60 * 4 # 4 hours
 
 ## don't change pls
-steam_mod_changelog_url = "https://steamcommunity.com/sharedfiles/filedetails/changelog/{}"
+steam_mod_changelog_url = "https://steamcommunity.com/sharedfiles/filedetails/changelog/{}"steam_mod_changelog_url = "https://steamcommunity.com/sharedfiles/filedetails/changelog/{}"

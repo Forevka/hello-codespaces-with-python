@@ -26,6 +26,7 @@ from config import (
     wait_before_restart,
     discord_notification_points,
     planned_restart_every_seconds,
+    planned_restart_at,
 )
 from utils import log_subprocess_output
 
@@ -81,14 +82,15 @@ async def start_zomboid():
 @app.on_event("startup")
 @repeat_every(seconds=planned_restart_every_seconds, wait_first=True)
 async def planned_restart_every_n_seconds() -> None:
-    state[States.RESTART_PLANNED] = True
-    state[States.RESTARTING] = True
-    state[States.RESTART_STARTED_AT] = datetime.datetime.now()
+    if datetime.datetime.now().hour in planned_restart_at:
+        state[States.RESTART_PLANNED] = True
+        state[States.RESTARTING] = True
+        state[States.RESTART_STARTED_AT] = datetime.datetime.now()
 
-    channel = ds_client.get_channel(discord_channel_for_notifiers)
-    await channel.send(f"*Внимание* плановый рестарт сервера, @everyone. Сервер перезапустится через {wait_before_restart}",)
-    
-    api_logger.info(f"starting planned restart")
+        channel = ds_client.get_channel(discord_channel_for_notifiers)
+        await channel.send(f"*Внимание* плановый рестарт сервера, @everyone. Сервер перезапустится через {wait_before_restart}",)
+        
+        api_logger.info(f"starting planned restart, because now {datetime.datetime.now().hour}")
 
 
 @app.on_event("startup")
