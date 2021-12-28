@@ -11,3 +11,6 @@ class Client:
 
     async def get_changelog(self, mod_id: int):
         return await self.get(self.urls_dict["changelog"], mod_id)
+
+    async def get_current_time(self, timezone: int):
+        return await self.get(self.urls_dict["current_time"], timezone)

@@ -1,4 +1,5 @@
 import datetime
+import json
 
 import discord
 from update_mods import check_mods_to_update
@@ -8,6 +9,7 @@ import humanize
 import asyncio
 import threading
 from notifiers.discord_bot import ds_client
+from client import Client as ApiClient
 
 from global_state import state, States
 
@@ -27,6 +29,8 @@ from config import (
     discord_notification_points,
     planned_restart_every_seconds,
     planned_restart_at,
+    current_time_url,
+    timezone,
 )
 from utils import log_subprocess_output
 
@@ -82,15 +86,27 @@ async def start_zomboid():
 @app.on_event("startup")
 @repeat_every(seconds=planned_restart_every_seconds, wait_first=True)
 async def planned_restart_every_n_seconds() -> None:
-    if datetime.datetime.now().hour in planned_restart_at:
+    urls = {
+        "changelog": steam_mod_changelog_url,
+        "current_time": current_time_url,
+    }
+
+    client = ApiClient(urls)
+
+    kiev_time = await client.get_current_time(timezone)
+    loaded_time = json.loads(kiev_time)
+    current_time = datetime.datetime.fromisoformat(loaded_time['datetime'])
+
+    if (current_time.hour in planned_restart_at) and (current_time.hour != state[States.RESTART_PLANNED_STARTED_AT].hour):
         state[States.RESTART_PLANNED] = True
         state[States.RESTARTING] = True
         state[States.RESTART_STARTED_AT] = datetime.datetime.now()
+        state[States.RESTART_PLANNED_STARTED_AT] = datetime.datetime.now()
 
         channel = ds_client.get_channel(discord_channel_for_notifiers)
         await channel.send(f"*Внимание* плановый рестарт сервера, @everyone. Сервер перезапустится через {wait_before_restart}",)
         
-        api_logger.info(f"starting planned restart, because now {datetime.datetime.now().hour}")
+        api_logger.info(f"starting planned restart, because now {current_time.hour}")
 
 
 @app.on_event("startup")

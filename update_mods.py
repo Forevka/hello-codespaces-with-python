@@ -8,7 +8,7 @@ from acf import loads as load_acf
 
 from client import Client
 from logger_config import api_logger
-from config import steam_mod_changelog_url
+from config import steam_mod_changelog_url, current_time_url
 
 
 async def load_mod_info(
@@ -95,6 +95,7 @@ async def check_mods_to_update(path_to_wokshop_acf) -> List[Dict[str, any]]:
 
     urls = {
         "changelog": steam_mod_changelog_url,
+        "current_time": current_time_url,
     }
 
     client = Client(urls)

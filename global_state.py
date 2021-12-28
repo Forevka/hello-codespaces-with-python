@@ -10,6 +10,7 @@ class States(Enum):
     RESTART_IN_COOLDOWN = "restart_in_cooldown"
     RESTART_DISCORD_NOTIFICATIONS = "restart_discord_notifications"
     RESTART_PLANNED = "restart_planned"
+    RESTART_PLANNED_STARTED_AT = "restart_planned_started_at"
 
     SERVER_WAITING_TO_START = "server_waiting_to_start"
 
@@ -25,7 +26,8 @@ class State:
         States.RESTART_COOLDOWN: datetime.timedelta(minutes=cooldown_after_restart),
         States.RESTART_DISCORD_NOTIFICATIONS: [],
         States.RESTART_PLANNED: False,
-        States.SERVER_WAITING_TO_START: False
+        States.SERVER_WAITING_TO_START: False,
+        States.SERVER_WAITING_TO_START: datetime.datetime.now(),
     }
     
 state = State.state
