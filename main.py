@@ -72,7 +72,8 @@ async def is_zomboid_server_running() -> None:
                 channel = ds_client.get_channel(discord_channel_for_notifiers)
                 await channel.send("Сервер перезапущен, можно играть.")
         except TimeoutError as e:
-            pass            
+            api_logger.warning('server not started yet')
+            pass
 
 
 @app.on_event("startup")
@@ -113,7 +114,7 @@ async def planned_restart_every_n_seconds() -> None:
 @repeat_every(seconds=20, wait_first=True)
 async def check_mod_updates_and_restart() -> None:
     global zomboid_process, zomboid_thread
-    if state[States.SERVER_WAITING_TO_START]:
+    if (state[States.SERVER_WAITING_TO_START] == True):
         api_logger.info(f"Waiting server to start, skipping mod check")
 
         return

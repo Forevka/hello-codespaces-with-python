@@ -26,8 +26,8 @@ class State:
         States.RESTART_COOLDOWN: datetime.timedelta(minutes=cooldown_after_restart),
         States.RESTART_DISCORD_NOTIFICATIONS: [],
         States.RESTART_PLANNED: False,
-        States.SERVER_WAITING_TO_START: False,
-        States.SERVER_WAITING_TO_START: datetime.datetime.now(),
+        States.RESTART_PLANNED_STARTED_AT: datetime.datetime.now(),
+        States.SERVER_WAITING_TO_START: True,
     }
     
 state = State.state
