@@ -16,7 +16,12 @@ async def load_mod_info(
     mod_id,
 ):
     raw_changelog = await client.get_changelog(mod_id)
+
     soup = BeautifulSoup(raw_changelog, "lxml")
+
+    if soup.find('div', class_='error_ctn'):
+        api_logger.warning(f"Can't parse mod {mod_id}",)
+        return None
 
     latest_change = soup.find("div", class_="changelog headline")
     human_datetime = re.sub(r"\t", "", latest_change.text)
@@ -57,29 +62,38 @@ async def load_mod_info(
 
 
 async def info_wrapper(mod_id, list_to_update, client, workshop_local_items):
-    mod_info = await load_mod_info(client, mod_id)
-    # print(mod_info)
-    local_mod_info = workshop_local_items["AppWorkshop"]["WorkshopItemsInstalled"][
-        mod_id
-    ]
-    local_installed_at = datetime.fromtimestamp(int(local_mod_info["timeupdated"]))
-    api_logger.info(
-        f"Local installed updated at: {local_installed_at}",
-    )
-    if mod_info["last_update"] > local_installed_at:
+    try:
+        mod_info = await load_mod_info(client, mod_id)
+        # print(mod_info)
+        if mod_info is None:
+            api_logger.info(
+                f"Can't wrap mod {mod_id} with additional info, skipping check",
+            )
+            return
+
+        local_mod_info = workshop_local_items["AppWorkshop"]["WorkshopItemsInstalled"][
+            mod_id
+        ]
+        local_installed_at = datetime.fromtimestamp(int(local_mod_info["timeupdated"]))
         api_logger.info(
-            f'NEED UPDATE {mod_info["name"]}',
+            f"Local installed updated at: {local_installed_at}",
         )
-        list_to_update.append(
-            {
-                **mod_info,
-                "local_last_update": local_installed_at,
-                "local_last_update_timestamp": local_installed_at.timestamp(),
-                "mod_id": mod_id,
-            }
-        )
-    else:
-        api_logger.info("up to date, ok")
+        if mod_info["last_update"] > local_installed_at:
+            api_logger.info(
+                f'NEED UPDATE {mod_info["name"]}',
+            )
+            list_to_update.append(
+                {
+                    **mod_info,
+                    "local_last_update": local_installed_at,
+                    "local_last_update_timestamp": local_installed_at.timestamp(),
+                    "mod_id": mod_id,
+                }
+            )
+        else:
+            api_logger.info("up to date, ok")
+    except Exception as ex:
+        api_logger.error("exception while parsing mod info", ex,)
 
 
 async def check_mods_to_update(path_to_wokshop_acf) -> List[Dict[str, any]]:

@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-.logs
+/logs
 test.py
 
 # C extensions
@@ -130,3 +130,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+appworkshop_108600.acf

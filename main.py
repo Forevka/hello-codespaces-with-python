@@ -63,17 +63,19 @@ def read_root():
 @app.on_event("startup")
 @repeat_every(seconds=3, wait_first=True)
 async def is_zomboid_server_running() -> None:
-    if state[States.SERVER_WAITING_TO_START]:
+    if (state[States.SERVER_WAITING_TO_START] == True):
         try:
             with Client(rcon_host, rcon_port, passwd=rcon_password, timeout=2) as client:
-                client.run("help")
+                client.run("players")
                 state[States.SERVER_WAITING_TO_START] = False
 
                 channel = ds_client.get_channel(discord_channel_for_notifiers)
                 await channel.send("Сервер перезапущен, можно играть.")
         except TimeoutError as e:
             api_logger.warning('server not started yet')
-            pass
+        except Exception as ee:
+            api_logger.exception('error', ee)
+
 
 
 @app.on_event("startup")
@@ -94,8 +96,8 @@ async def planned_restart_every_n_seconds() -> None:
 
     client = ApiClient(urls)
 
-    kiev_time = await client.get_current_time(timezone)
-    loaded_time = json.loads(kiev_time)
+    internet_time = await client.get_current_time(timezone)
+    loaded_time = json.loads(internet_time)
     current_time = datetime.datetime.fromisoformat(loaded_time['datetime'])
 
     if (current_time.hour in planned_restart_at) and (current_time.hour != state[States.RESTART_PLANNED_STARTED_AT].hour):
@@ -107,19 +109,19 @@ async def planned_restart_every_n_seconds() -> None:
         channel = ds_client.get_channel(discord_channel_for_notifiers)
         await channel.send(f"*Внимание* плановый рестарт сервера, @everyone. Сервер перезапустится через {wait_before_restart}",)
         
-        api_logger.info(f"starting planned restart, because now {current_time.hour}")
+        api_logger.info(f"starting planned restart, because now {current_time.hour} by {timezone}")
 
 
 @app.on_event("startup")
 @repeat_every(seconds=20, wait_first=True)
 async def check_mod_updates_and_restart() -> None:
     global zomboid_process, zomboid_thread
+    api_logger.info(f"BEFORE {state}")
     if (state[States.SERVER_WAITING_TO_START] == True):
         api_logger.info(f"Waiting server to start, skipping mod check")
 
         return
 
-    api_logger.info(f"BEFORE {state}")
     try:
         if state[States.RESTART_IN_COOLDOWN]:
             api_logger.info(f"RESTART COOLDOWN BEFORE {state[States.RESTART_STARTED_AT] + state[States.RESTART_COOLDOWN]}")
