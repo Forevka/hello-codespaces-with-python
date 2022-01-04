@@ -40,6 +40,7 @@ planned_restart_at = [
 ]
 
 ## don't change pls
+link_to_steam = "steam://openurl/{}"
 steam_mod_changelog_url = "https://steamcommunity.com/sharedfiles/filedetails/changelog/{}"
 current_time_url = "http://worldtimeapi.org/api/timezone/{}"
 
