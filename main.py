@@ -31,6 +31,7 @@ from config import (
     planned_restart_at,
     current_time_url,
     timezone,
+    link_to_steam,
 )
 from utils import log_subprocess_output
 
@@ -138,7 +139,11 @@ async def check_mod_updates_and_restart() -> None:
                 state[States.RESTARTING] = True
                 state[States.RESTART_STARTED_AT] = datetime.datetime.now()
                 channel = ds_client.get_channel(discord_channel_for_notifiers)
-                message = '\n'.join([f"[{i['name']}]({steam_mod_changelog_url.format(i['mod_id'])})" for i in mods_to_update])
+                message = ''
+                for mod in mods_to_update:
+                    link_to_mod = steam_mod_changelog_url.format(mod['mod_id'])
+                    link_to_mod_in_steam = link_to_steam.format(link_to_mod)
+                    message += f"[{mod['name']}]({link_to_mod}) [Steam]({link_to_mod_in_steam})\n"
                 e = discord.Embed(title=f'Всего {len(mods_to_update)}', description=message)
                 await channel.send(f"Есть моды которые нужно обновить, @everyone. Сервер перезапустится через {wait_before_restart} минут.\nПросим всех перезайти в игру чтобы обновиться.", embed=e)
 

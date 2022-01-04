@@ -21,8 +21,8 @@ zomboid_logs_filename = "zomboid_logger.log"
 api_logs_filename = "api_logger.log"
 discord_logs_filename = "discord_logger.log"
 
-discord_channel_for_notifiers = 923165182581174284
-discord_bot_token = ""
+discord_channel_for_notifiers = 926848734489354311
+discord_bot_token = "OTI2ODQ4NDc1NzEzMzg4NTc0.YdBo6A.95X3Y_8uG4JHZD9C5qXTsQvgwvY"
 discord_notification_points = {
     3: "*Внимание!*\nСервер перезапустится через 3 минуты",
     1: "*Внимание!*\nСервер перезапустится через 1 минуту",
