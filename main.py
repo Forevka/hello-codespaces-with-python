@@ -72,7 +72,9 @@ async def is_zomboid_server_running() -> None:
 
                 channel = ds_client.get_channel(discord_channel_for_notifiers)
                 await channel.send("Сервер перезапущен, можно играть.")
+                await ds_client.change_presence(game=discord.Game(name="✅ Server is up and running"))
         except TimeoutError as e:
+            await ds_client.change_presence(game=discord.Game(name="❌ Server is down"))
             api_logger.warning('server not started yet')
         except Exception as ee:
             api_logger.exception('error', ee)
